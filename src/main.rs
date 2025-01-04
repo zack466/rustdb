@@ -1,35 +1,46 @@
-use bincode::{serialize, deserialize};
+use crate::resp::RESP;
+use crate::value::Value;
+use crate::command::Command;
 
-mod table;
+mod response;
+mod resp;
+mod value;
+mod command;
 
 fn main() {
-    let mut table = table::Table::new();
-    for i in 0..10 {
-        table.insert(format!("asdf/{}", i), table::Value::String(format!("asdf/{}", i)));
-    }
-
-    table.to_disk("test.bin").unwrap();
-
-    let table2 = table::Table::from_disk("test.bin").unwrap();
-
-    assert!(table2 == table);
+    // let v = Value::Array(vec![
+    //     Value::String("Asdf".to_string()),
+    //     Value::Int(123),
+    //     Value::Null,
+    //     Value::Array(vec![
+    //         Value::String("Hello".to_string()),
+    //         Value::String("world".to_string()),
+    //     ]),
+    // ]);
+    let v = Command::Set("Hello".to_string(), Value::String("world".to_string()));
+    let encoded = v.clone().encode_resp();
+    let decoded = Command::decode_resp(encoded).unwrap();
+    println!("{:?}", decoded);
+    assert!(decoded == v);
 }
-
 
 #[test]
 fn test_table() {
     let mut table = table::Table::new();
 
     for i in 0..1000 {
-        table.insert(format!("string/{}", i), table::Value::String(format!("{}", i)));
-        table.insert(format!("int/{}", i), table::Value::Int(i));
-        table.insert(format!("float/{}", i), table::Value::Float(i as f64));
+        table.set(
+            format!("string/{}", i),
+            Value::String(format!("{}", i)),
+        );
+        table.set(format!("int/{}", i), Value::Int(i));
     }
 
     for i in 0..1000 {
-        assert!(table.get(&format!("string/{}", i)) == Some(table::Value::String(format!("{}", i))));
-        assert!(table.get(&format!("int/{}", i)) == Some(table::Value::Int(i)));
-        assert!(table.get(&format!("float/{}", i)) == Some(table::Value::Float(i as f64)));
+        assert!(
+            table.get(&format!("string/{}", i)) == Some(Value::String(format!("{}", i)))
+        );
+        assert!(table.get(&format!("int/{}", i)) == Some(Value::Int(i)));
     }
 
     let serialized = bincode::serialize(&table).unwrap();

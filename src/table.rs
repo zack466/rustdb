@@ -1,13 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fs::File;
-use serde::{Serialize, Deserialize};
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Value {
-    String(String),
-    Int(i64),
-    Float(f64),
-}
+use crate::value::Value;
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 struct Entry {
@@ -87,7 +81,7 @@ impl Table {
         }
     }
 
-    pub fn insert(&mut self, key: String, value: Value) {
+    pub fn set(&mut self, key: String, value: Value) {
         let index = self.index(&key, self.current_level);
 
         // First check if entry already exists, and modify it if so.
@@ -106,7 +100,7 @@ impl Table {
             self.split();
         }
     }
-    
+
     pub fn split(&mut self) {
         // Split the bucket at the next index
         self.data.push(Bucket::new());
@@ -117,7 +111,7 @@ impl Table {
             let index = hash(&entry.key, self.current_level + 1);
             self.data[index].entries.push(entry);
         }
-        
+
         // Update next index and level
         self.next += 1;
         if self.next >= (1 << self.current_level) {
