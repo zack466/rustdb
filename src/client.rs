@@ -36,7 +36,26 @@ pub async fn main() -> Result<(), Error> {
         io::stdin().read_line(&mut input).unwrap();
         input = input.trim().to_string();
 
+        if input.is_empty() {
+            println!("Exiting...");
+            break;
+        }
+
         match parse_readable_command(input.as_str()) {
+            Ok(Command::Help) => {
+                println!("Available commands:");
+                println!("  GET <key>");
+                println!("  SET <key> <value>");
+                println!("  INC <key>");
+                println!("  DEC <key>");
+                println!("  SAVE");
+                println!("  EXIT");
+                println!("  HELP");
+            }
+            Ok(Command::Exit) => {
+                println!("Exiting...");
+                break;
+            }
             Ok(command) => {
                 client
                     .send(Message::text(Command::encode_resp(command)))
@@ -58,4 +77,5 @@ pub async fn main() -> Result<(), Error> {
     }
 
     client.close().await?;
+    Ok(())
 }

@@ -101,7 +101,7 @@ impl RESP for Value {
     fn encode_resp(self) -> String {
         match self {
             Self::String(s) => {
-                format!("${}{}\r\n", s.len(), s)
+                format!("${}\r\n{}\r\n", s.len(), s)
             }
             Self::Int(i) => {
                 format!(":{}\r\n", i)

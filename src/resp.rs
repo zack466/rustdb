@@ -11,7 +11,7 @@ pub trait RESP {
 }
 
 pub fn parse_bulk<'a>(input: &'a str, prefix: &'a str) -> IResult<&'a str, String> {
-    let (remaining, (_, len)) = tuple((tag(prefix), u64))(input)?;
+    let (remaining, (_, len, _)) = tuple((tag(prefix), u64, tag("\r\n")))(input)?;
 
     let (remaining, (s, _)) = tuple((take(len), tag("\r\n")))(remaining)?;
     let s = s.to_string();

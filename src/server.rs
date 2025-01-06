@@ -43,24 +43,27 @@ fn dispatch(command: Command, shared: Arc<Mutex<Db>>) -> Result<Value, String> {
                 db.table.set(key, Value::Int(i + 1));
                 Ok(Value::SimpleString("OK".to_string()))
             }
-            _ => Ok(Value::SimpleError("ERR: cannot increment non-integer".to_string())),
+            _ => Ok(Value::SimpleError("cannot increment non-integer".to_string())),
         },
         Command::Dec(key) => match db.table.get(&key) {
             Some(Value::Int(i)) => {
                 db.table.set(key, Value::Int(i - 1));
                 Ok(Value::SimpleString("OK".to_string()))
             }
-            _ => Ok(Value::SimpleError("ERR: cannot decrement non-integer".to_string())),
+            _ => Ok(Value::SimpleError("cannot decrement non-integer".to_string())),
         },
         Command::Hello => {
             Ok(Value::String("WORLD".to_string()))
         }
         Command::Save => {
             if let Some(path) = &db.path {
-                db.table.to_disk(path.as_str()).unwrap();
+                if !path.is_empty() {
+                    db.table.to_disk(path.as_str()).unwrap();
+                }
             }
             Ok(Value::SimpleString("OK".to_string()))
         }
+        _ => Ok(Value::SimpleError("Unrecognized command".to_string()))
     }
 }
 

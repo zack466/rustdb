@@ -17,6 +17,9 @@ pub enum Command {
     Dec(String),
     Hello,
     Save,
+    // User-side commands (the server should never see these)
+    Help,
+    Exit,
 }
 
 // TODO: Yes, this is super boilerplate-y. There's probably some way to generate all of these functions
@@ -74,6 +77,8 @@ fn parse_command_name(input: &str) -> IResult<&str, String> {
         value("DEC".to_string(), tag_no_case("DEC")),
         value("SAVE".to_string(), tag_no_case("SAVE")),
         value("HELLO".to_string(), tag_no_case("HELLO")),
+        value("EXIT".to_string(), tag_no_case("EXIT")),
+        value("HELP".to_string(), tag_no_case("HELP")),
     ))(input)
 }
 
@@ -127,6 +132,20 @@ pub fn parse_readable_command(input: &str) -> Result<Command, String> {
                     Err("Invalid usage: HELLO".to_string())
                 }
             }
+            "EXIT" => {
+                if args.is_empty() {
+                    Ok(Command::Exit)
+                } else {
+                    Err("Invalid usage: EXIT".to_string())
+                }
+            }
+            "HELP" => {
+                if args.is_empty() {
+                    Ok(Command::Help)
+                } else {
+                    Err("Invalid usage: HELP".to_string())
+                }
+            }
             _ => Err(format!("Unknown command: {}", cmd)),
         }
     } else {
@@ -158,6 +177,7 @@ impl RESP for Command {
                 Value::encode_resp(Value::Array(vec![Value::String("HELLO".to_string())]))
             }
             Self::Save => Value::encode_resp(Value::Array(vec![Value::String("SAVE".to_string())])),
+            _ => unreachable!(),
         }
     }
 
