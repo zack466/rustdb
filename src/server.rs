@@ -53,7 +53,7 @@ fn dispatch(command: Command, shared: Arc<Mutex<Db>>) -> Result<Value, String> {
             _ => Ok(Value::SimpleError("cannot decrement non-integer".to_string())),
         },
         Command::Hello => {
-            Ok(Value::String("WORLD".to_string()))
+            Ok(Value::SimpleString("WORLD".to_string()))
         }
         Command::Save => {
             if let Some(path) = &db.path {
@@ -63,7 +63,7 @@ fn dispatch(command: Command, shared: Arc<Mutex<Db>>) -> Result<Value, String> {
             }
             Ok(Value::SimpleString("OK".to_string()))
         }
-        _ => Ok(Value::SimpleError("Unrecognized command".to_string()))
+        _ => Ok(Value::SimpleString("OK".to_string()))
     }
 }
 

@@ -34,8 +34,8 @@ impl Value {
                     .join(", ")
             ),
             Value::Null => "(nil)".to_string(),
-            Value::SimpleString(s) => format!("(string) {}", s),
-            Value::SimpleError(s) => format!("(error) {}", s),
+            Value::SimpleString(s) => s.clone(),
+            Value::SimpleError(s) => format!("ERR: {}", s),
         }
     }
 }
