@@ -3,9 +3,9 @@ use crate::value::Value;
 
 use nom::branch::alt;
 use nom::bytes::complete::{tag, tag_no_case, take_till1};
-use nom::character::complete::{anychar, i64, multispace0, multispace1, u64};
+use nom::character::complete::{anychar, i64, multispace0};
 use nom::combinator::value;
-use nom::multi::{many0, many1, many_m_n, many_till, separated_list0};
+use nom::multi::{many0, many_till, separated_list0};
 use nom::sequence::{delimited, tuple};
 use nom::IResult;
 
