@@ -42,4 +42,6 @@ OK
 OK
 > get bar
 (integer) 11
+> save
+OK
 ```

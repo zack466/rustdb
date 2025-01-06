@@ -105,6 +105,8 @@ pub async fn main() -> Result<(), Error> {
         let (_request, mut ws_stream) = ServerBuilder::new().accept(stream).await?;
         let shared = shared.clone();
 
+        println!("Accepting connection from {}", ws_stream.get_ref().peer_addr().unwrap());
+
         tokio::spawn(async move {
             while let Some(Ok(msg)) = ws_stream.next().await {
                 if msg.is_text() || msg.is_binary() {
@@ -122,6 +124,7 @@ pub async fn main() -> Result<(), Error> {
                 }
             }
 
+            println!("Connection from {} closed", ws_stream.get_ref().peer_addr().unwrap());
             Ok::<_, Error>(())
         });
     }
