@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 
 use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::{i64, u64};
+use nom::bytes::complete::{tag, tag_no_case, take_until};
+use nom::character::complete::{i64, multispace1, u64, anychar};
 use nom::combinator::value;
-use nom::multi::many_m_n;
-use nom::sequence::tuple;
+use nom::multi::{many0, many1, many_m_n, many_till};
+use nom::sequence::{delimited, tuple};
 use nom::IResult;
 
 use crate::resp::RESP;
@@ -19,6 +19,25 @@ pub enum Value {
     Null,
     SimpleString(String),
     SimpleError(String),
+}
+
+impl Value {
+    pub fn string_repr(&self) -> String {
+        match self {
+            Value::String(s) => format!("\"{}\"", s),
+            Value::Int(i) => format!("(integer) {}", i),
+            Value::Array(a) => format!(
+                "[{}]",
+                a.iter()
+                    .map(|v| v.string_repr())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            ),
+            Value::Null => "(nil)".to_string(),
+            Value::SimpleString(s) => format!("(string) {}", s),
+            Value::SimpleError(s) => format!("(error) {}", s),
+        }
+    }
 }
 
 impl ToString for Value {
