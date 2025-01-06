@@ -1,22 +1,13 @@
 use futures_util::{SinkExt, StreamExt};
-use http::Uri;
-use std::sync::MutexGuard;
 use std::sync::{Arc, Mutex};
 use tokio;
 use tokio::net::TcpListener;
-use tokio_websockets::{ClientBuilder, Error, Message, ServerBuilder};
+use tokio_websockets::{Error, Message, ServerBuilder};
 
-use crate::command::Command;
-use crate::resp::RESP;
-use crate::response::Response;
-use crate::table::Table;
-use crate::value::Value;
-
-mod command;
-mod resp;
-mod response;
-mod table;
-mod value;
+use rustdb::command::Command;
+use rustdb::resp::RESP;
+use rustdb::table::Table;
+use rustdb::value::Value;
 
 fn dispatch(command: Command, shared: Arc<Mutex<Table>>) -> Result<Value, String> {
     let mut table = shared.lock().unwrap();
@@ -25,19 +16,19 @@ fn dispatch(command: Command, shared: Arc<Mutex<Table>>) -> Result<Value, String
         Command::Get(key) => Ok(table.get(&key).unwrap_or(Value::Null)),
         Command::Set(key, value) => {
             table.set(key, value);
-            Ok(Value::Ok)
+            Ok(Value::SimpleString("OK".to_string()))
         }
         Command::Inc(key) => match table.get(&key) {
             Some(Value::Int(i)) => {
                 table.set(key, Value::Int(i + 1));
-                Ok(Value::Ok)
+                Ok(Value::SimpleString("OK".to_string()))
             }
             _ => Err("Tried to increment a non-integer".to_string()),
         },
         Command::Dec(key) => match table.get(&key) {
             Some(Value::Int(i)) => {
                 table.set(key, Value::Int(i - 1));
-                Ok(Value::Ok)
+                Ok(Value::SimpleString("OK".to_string()))
             }
             _ => Err("Tried to decrement a non-integer".to_string()),
         },
@@ -61,7 +52,6 @@ pub async fn main() -> Result<(), Error> {
         let shared = shared.clone();
 
         tokio::spawn(async move {
-            // Just an echo server, really
             while let Some(Ok(msg)) = ws_stream.next().await {
                 if msg.is_text() || msg.is_binary() {
                     let command = Command::decode_resp(msg.as_text().unwrap().to_string()).unwrap();

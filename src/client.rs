@@ -1,22 +1,11 @@
 use futures_util::{SinkExt, StreamExt};
 use http::Uri;
-use std::sync::MutexGuard;
-use std::sync::{Arc, Mutex};
 use tokio;
-use tokio::net::TcpListener;
-use tokio_websockets::{ClientBuilder, Error, Message, ServerBuilder};
+use tokio_websockets::{ClientBuilder, Error, Message};
 
-use crate::command::Command;
-use crate::resp::RESP;
-use crate::response::Response;
-use crate::table::Table;
-use crate::value::Value;
-
-mod command;
-mod resp;
-mod response;
-mod table;
-mod value;
+use rustdb::command::Command;
+use rustdb::resp::RESP;
+use rustdb::response::Response;
 
 #[tokio::main]
 pub async fn main() -> Result<(), Error> {

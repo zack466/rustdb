@@ -1,11 +1,7 @@
-use crate::resp::RESP;
-use crate::value::Value;
-use crate::command::Command;
-
-mod response;
-mod resp;
-mod value;
-mod command;
+use rustdb::table::Table;
+use rustdb::value::Value;
+use rustdb::command::Command;
+use rustdb::resp::RESP;
 
 fn main() {
     // let v = Value::Array(vec![
@@ -17,6 +13,7 @@ fn main() {
     //         Value::String("world".to_string()),
     //     ]),
     // ]);
+    let mut _table = Table::new();
     let v = Command::Set("Hello".to_string(), Value::String("world".to_string()));
     let encoded = v.clone().encode_resp();
     let decoded = Command::decode_resp(encoded).unwrap();
@@ -26,7 +23,7 @@ fn main() {
 
 #[test]
 fn test_table() {
-    let mut table = table::Table::new();
+    let mut table = Table::new();
 
     for i in 0..1000 {
         table.set(
@@ -44,7 +41,7 @@ fn test_table() {
     }
 
     let serialized = bincode::serialize(&table).unwrap();
-    let deserialized: table::Table = bincode::deserialize(&serialized).unwrap();
+    let deserialized = bincode::deserialize::<Table>(&serialized).unwrap();
 
     assert!(deserialized == table);
 }

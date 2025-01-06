@@ -69,7 +69,7 @@ impl Table {
         }
     }
 
-    fn index(&self, key: &str, level: usize) -> usize {
+    fn index(&self, key: &str) -> usize {
         let index = hash(&key, self.current_level);
 
         // If index less than next, then the bucket has been split this round, so we
@@ -82,7 +82,7 @@ impl Table {
     }
 
     pub fn set(&mut self, key: String, value: Value) {
-        let index = self.index(&key, self.current_level);
+        let index = self.index(&key);
 
         // First check if entry already exists, and modify it if so.
         for entry in self.data[index].entries.iter_mut() {
@@ -121,7 +121,7 @@ impl Table {
     }
 
     pub fn get(&self, key: &str) -> Option<Value> {
-        let index = self.index(&key, self.current_level);
+        let index = self.index(&key);
 
         for entry in self.data[index].entries.iter() {
             if entry.key == key {
